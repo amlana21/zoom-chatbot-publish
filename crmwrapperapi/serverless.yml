@@ -1,0 +1,32 @@
+# serverless.yml
+
+service: serverless-bot
+
+plugins:
+  - serverless-python-requirements
+  - serverless-wsgi
+
+custom:
+  wsgi:
+    app: app.app
+    packRequirements: false
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: us-east-1
+  memorySize: 128
+  profile: apiprofile
+  environment:
+    HOSTURL: https://login.salesforce.com
+    GRANTTYPE: password
+    CLIENTID: <oauth_client_id>
+    CLIENTSECRET: <oauth_client_secret>
+    ENV: DEV
+
+functions:
+  app:
+    handler: wsgi.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'

@@ -1,0 +1,29 @@
+service: CRM-Bot-App
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: ${self:custom.secrets.NODE_ENV}
+  region: us-east-1
+  memorySize: 128
+  profile: lambdadeploy
+  environment: 
+    NODE_ENV: ${self:custom.secrets.NODE_ENV}
+    zoom_client_id: <from Bot app dashboard>
+    zoom_client_secret: <from Bot app dashboard>
+    zoom_bot_jid: <from Bot app dashboard>
+    zoom_verification_token: <from Bot app dashboard>
+    api_url: <bot api url>
+    sf_domain: <domain for crm>
+    mongocredsdb: <mongo db url>
+functions:
+  app:
+    handler: src/index.handler
+    events: 
+      - http: 
+          path: /
+          method: ANY
+          cors: true
+      - http: 
+          path: /{proxy+}
+          method: ANY
+          cors: true

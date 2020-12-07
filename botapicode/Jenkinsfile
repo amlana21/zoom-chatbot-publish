@@ -1,0 +1,35 @@
+pipeline{
+    agent any
+
+    stages{
+        stage('build'){
+            steps{
+                sh 'docker container run -d --name crmdocker -v $PWD:/home/appfiles awsacdev/serverlessdocker:1.5'
+                sh 'docker container exec -i crmdocker serverless config credentials --provider aws --key <aws key> --secret <aws secret> --profile lambdadeploy'
+                sh 'docker container exec -i crmdocker yarn install'
+            }
+            post{
+                failure{
+                    sh 'docker container rm -f crmdocker'
+                }
+            }
+        }
+
+        stage('deploy'){
+            steps{
+                sh 'docker container exec -i crmdocker serverless deploy'
+            }
+            post{
+                failure{
+                    sh 'docker container rm -f crmdocker'
+                }
+            }
+        }
+        
+    }
+    post { 
+            success { 
+                sh 'docker container rm -f crmdocker'
+            }
+            }
+}
